@@ -1,4 +1,4 @@
-node_modules/
+node_modules
 .env
 ./dist
 /extensions/*
@@ -18,3 +18,4 @@ cypress
 .prettierignore
 .prettierrc
 mysqlToPostgres.js
+build/
