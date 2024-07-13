@@ -1,0 +1,9 @@
+{
+    "shop": {
+        "currency": "EUR",
+        "language": "fr",
+        "timezone": "Europe/Paris",
+        "NODE_ENV": "test"
+    }
+    
+}
