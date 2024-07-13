@@ -1,0 +1,12 @@
+build
+.env
+.husky
+node_modules
+.git
+.github/
+.dockerignore
+Dockerfile
+compose.yaml
+compose.yml
+tmp/**
+log/**

@@ -4,6 +4,7 @@ node_modules
 /extensions/*
 themes
 .idea/*
+build
 .evershop
 .vscode
 npm-debug.log
@@ -14,7 +15,6 @@ npm-debug.log
 .log
 coverage
 cypress
-/config
 .prettierignore
 .prettierrc
 mysqlToPostgres.js
