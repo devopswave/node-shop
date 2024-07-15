@@ -10,7 +10,7 @@ COPY package*.json ./
 COPY . .
 
 # Installer les dépendances de l'application
-RUN npm ci --only=production
+RUN npm install --only=production
 
 # Construire l'application pour la production
 RUN npm run build
