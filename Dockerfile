@@ -4,11 +4,10 @@ WORKDIR /app
 # Copier le fichier package.json dans le dossier de l'application
 COPY package.json .
 
-# Installer les dépendances de l'application
-RUN npm install
-
 # Copier tout le reste du code de l'application
 COPY . .
+# Installer les dépendances de l'application
+RUN npm install
 
 # Construire l'application pour la production
 RUN npm run build
