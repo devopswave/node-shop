@@ -4,7 +4,9 @@ node_modules
 /extensions/*
 themes
 .idea/*
+/build/*
 build
+./build
 .evershop
 .vscode
 npm-debug.log
