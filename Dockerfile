@@ -2,7 +2,7 @@ FROM node:lts-alpine3.20
 WORKDIR /app 
 
 # Copier le fichier package.json dans le dossier de l'application
-COPY package.json. .
+COPY package.json .
 
 # Installer les dépendances de l'application
 RUN npm install
