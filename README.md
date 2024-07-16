@@ -75,4 +75,95 @@ Avant de commencer, veuillez vérifier la liste des exigences système pour vous
    ```bash
    npm run build
    ```
+## Dockerisation de l'Application Node.js
 
+### Dockerfile Multi-Stage
+
+Pour optimiser le processus de dockerisation, nous utilisons un Dockerfile multi-stage. Cela permet de séparer les étapes de construction et de production, réduisant ainsi la taille de l'image finale et améliorant l'efficacité.
+
+#### Dockerfile
+
+```Dockerfile
+# Étape de construction
+FROM node:lts-alpine3.20 AS build
+WORKDIR /app
+
+# Copier les fichiers package.json et package-lock.json pour tirer parti du cache Docker
+COPY package*.json ./
+# Copier le reste du code de l'application
+COPY . .
+
+# Installer les dépendances de l'application
+RUN npm install --only=production
+
+# Construire l'application pour la production
+RUN npm run build
+
+# Étape de production
+FROM node:lts-alpine3.20 AS production
+WORKDIR /app
+
+# Copier les fichiers de build et les dépendances de l'étape de construction
+COPY --from=build /app .
+
+# Exposer le port 3000
+EXPOSE 3000
+
+# Commande de démarrage de l'application
+CMD ["npm", "run", "start"]
+```
+
+### Workflow GitHub Actions
+
+Le workflow GitHub Actions est configuré pour automatiser le processus de build et de push de l'image Docker vers DockerHub à chaque push sur la branche `main`. Voici le fichier de configuration pour ce workflow.
+
+#### YAML Workflow
+
+```yaml
+name: Docker
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Login to DockerHub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+
+    - name: Build and push
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        push: true
+        tags: ${{ secrets.DOCKER_HUB_USERNAME }}/node-shop:latest
+```
+
+### Explication
+
+1. **Dockerfile Multi-Stage** :
+   - **Étape de construction** : Nous utilisons l'image `node:lts-alpine3.20` pour créer un environnement léger. Les fichiers `package.json` et `package-lock.json` sont copiés en premier pour tirer parti du cache Docker et minimiser les reconstructions inutiles des dépendances. Ensuite, nous copions le reste du code de l'application et exécutons `npm run build` pour créer les fichiers de production.
+   - **Étape de production** : Cette étape utilise également `node:lts-alpine3.20` et copie les fichiers nécessaires depuis l'étape de construction. Le port 3000 est exposé et l'application est démarrée avec la commande `npm run start`.
+
+2. **Workflow GitHub Actions** :
+   - **Événements déclencheurs** : Le workflow s'exécute sur chaque push vers la branche `main` ou manuellement via `workflow_dispatch`.
+   - **Étapes** :
+     - **Checkout code** : Utilise `actions/checkout@v4` pour récupérer le code source.
+     - **Set up Docker Buildx** : Utilise `docker/setup-buildx-action@v3` pour configurer Docker Buildx.
+     - **Login to DockerHub** : Utilise `docker/login-action@v3` pour s'authentifier auprès de DockerHub en utilisant les secrets `DOCKER_HUB_USERNAME` et `DOCKER_HUB_PASSWORD`.
+     - **Build and push** : Utilise `docker/build-push-action@v6` pour builder et pousser l'image Docker vers DockerHub avec le tag spécifié.
+
+Ce processus assure que l'application est toujours à jour sur DockerHub après chaque modification de code, garantissant ainsi un déploiement continu et efficace.
